@@ -453,6 +453,11 @@ function pickQuestion(catIdx, qIdx) {
   document.getElementById('result-section').classList.add('hidden');
   document.getElementById('answer-input').value = '';
 
+  // Online host: hide answer input when it's a remote player's turn
+  if (typeof onlineState !== 'undefined' && onlineState.isOnline && onlineState.isHost && state.currentCompetitor !== 0) {
+    document.getElementById('answer-section').classList.add('hidden');
+  }
+
   document.getElementById('question-modal').classList.add('active');
   startTimer();
 
@@ -608,8 +613,9 @@ function closeModal() {
     return;
   }
 
-  // Online client: just close modal, host handles turn cycling
+  // Online client: close modal and tell host to cycle turn
   if (typeof onlineState !== 'undefined' && onlineState.isOnline && !onlineState.isHost) {
+    sendToHost({ type: 'client-continue' });
     return;
   }
 

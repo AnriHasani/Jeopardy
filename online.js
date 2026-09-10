@@ -166,6 +166,10 @@ function handleHostMessage(peerId, data, conn) {
     case 'submit-answer':
       handleOnlineSubmitAnswer(peerId, data.answer);
       break;
+
+    case 'client-continue':
+      handleClientContinue(peerId);
+      break;
   }
 }
 
@@ -617,6 +621,15 @@ function handleOnlineTimeUp() {
   });
 
   showResult(false, q.a, true);
+}
+
+// ==================== HOST: CLIENT CONTINUE ====================
+function handleClientContinue(peerId) {
+  // Only process if the modal is currently open (avoids double-close if host already clicked Continue)
+  const modal = document.getElementById('question-modal');
+  if (!modal.classList.contains('active')) return;
+
+  onlineCloseModal();
 }
 
 // ==================== HOST: CLOSE MODAL / TURN CYCLING ====================
