@@ -2,6 +2,16 @@
 // Uses PeerJS for WebRTC-based peer-to-peer connections
 
 // ==================== ONLINE STATE ====================
+const ICE_CONFIG = {
+  config: {
+    iceServers: [
+      { urls: 'stun:stun.l.google.com:19302' },
+      { urls: 'stun:stun1.l.google.com:19302' },
+      { urls: 'turn:openrelay.metered.ca:80', username: 'openrelay', credential: 'openrelay' },
+      { urls: 'turn:openrelay.metered.ca:443', username: 'openrelay', credential: 'openrelay' }
+    ]
+  }
+};
 let onlineState = {
   isOnline: false,
   isHost: false,
@@ -56,7 +66,7 @@ function createRoom() {
   onlineState.maxPlayers = getExpectedPlayerCount();
 
   // Create Peer with room code as ID
-  const peer = new Peer(roomCode);
+  const peer = new Peer(roomCode, ICE_CONFIG);
   onlineState.peer = peer;
 
   peer.on('open', (id) => {
@@ -106,7 +116,7 @@ function createRoomWithCode(code) {
   onlineState.connections = {};
   onlineState.maxPlayers = getExpectedPlayerCount();
 
-  const peer = new Peer(code);
+  const peer = new Peer(code, ICE_CONFIG);
   onlineState.peer = peer;
 
   peer.on('open', (id) => {
@@ -245,7 +255,7 @@ function joinRoom() {
   onlineState.isHost = false;
 
   // Create peer and connect to host
-  const peer = new Peer();
+  const peer = new Peer(ICE_CONFIG);
   onlineState.peer = peer;
 
   peer.on('open', () => {
