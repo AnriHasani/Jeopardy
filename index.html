@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Jeopardy!</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+</head>
+<body>
+  <div id="stars"></div>
+
+  <!-- LANDING -->
+  <div id="landing" class="screen active">
+    <div class="logo-container">
+      <h1 class="logo">
+        <span class="letter j">J</span><span class="letter e">E</span>
+        <span class="letter o">O</span><span class="letter p">P</span>
+        <span class="letter a">A</span><span class="letter r">R</span>
+        <span class="letter d">D</span><span class="letter y">Y</span>
+        <span class="excl">!</span>
+      </h1>
+      <div class="subtitle">LOCAL MULTIPLAYER</div>
+    </div>
+
+    <div class="mode-select">
+      <h3>GAME MODE</h3>
+      <div class="mode-grid">
+        <button class="mode-btn selected" data-mode="1v1" onclick="selectMode('1v1')">
+          <span class="mode-icon">👥</span>
+          <span class="mode-label">1v1</span>
+        </button>
+        <button class="mode-btn" data-mode="2v2" onclick="selectMode('2v2')">
+          <span class="mode-icon">🤝</span>
+          <span class="mode-label">2v2</span>
+        </button>
+        <button class="mode-btn" data-mode="3v3" onclick="selectMode('3v3')">
+          <span class="mode-icon">💪</span>
+          <span class="mode-label">3v3</span>
+        </button>
+        <button class="mode-btn" data-mode="ffa" onclick="selectMode('ffa')">
+          <span class="mode-icon">🏆</span>
+          <span class="mode-label">FREE FOR ALL</span>
+        </button>
+        <button class="mode-btn" data-mode="custom" onclick="selectMode('custom')">
+          <span class="mode-icon">⚙️</span>
+          <span class="mode-label">CUSTOM TEAMS</span>
+        </button>
+      </div>
+    </div>
+
+    <div id="custom-team-config" class="custom-team-config hidden">
+      <div class="config-row">
+        <label class="config-label">TEAMS:</label>
+        <select id="custom-teams-count" class="config-select" onchange="updateCustomConfig()">
+          <option value="2">2</option>
+          <option value="3">3</option>
+          <option value="4">4</option>
+        </select>
+        <label class="config-label">PLAYERS PER TEAM:</label>
+        <select id="custom-members-count" class="config-select" onchange="updateCustomConfig()">
+          <option value="2">2</option>
+          <option value="3">3</option>
+          <option value="4">4</option>
+        </select>
+      </div>
+    </div>
+
+    <div id="ffa-config" class="ffa-config hidden">
+      <div class="config-row">
+        <label class="config-label">PLAYERS:</label>
+        <select id="ffa-players-count" class="config-select" onchange="updateFFAConfig()">
+          <option value="2">2</option>
+          <option value="3">3</option>
+          <option value="4">4</option>
+          <option value="5">5</option>
+          <option value="6">6</option>
+        </select>
+      </div>
+    </div>
+
+    <div id="player-config" class="player-config">
+      <!-- Populated by JS -->
+    </div>
+
+    <div class="category-select">
+      <h3>CHOOSE YOUR CATEGORIES</h3>
+      <div class="preset-grid">
+        <button class="preset-btn preset-mixed selected" onclick="selectPreset('mixed')" data-preset="mixed">
+          <span class="preset-icon">🎲</span>
+          <span class="preset-label">MIXED</span>
+        </button>
+        <button class="preset-btn preset-food" onclick="selectPreset('food')" data-preset="food">
+          <span class="preset-icon">🍕</span>
+          <span class="preset-label">FOOD & DRINK</span>
+        </button>
+        <button class="preset-btn preset-science" onclick="selectPreset('science')" data-preset="science">
+          <span class="preset-icon">🔬</span>
+          <span class="preset-label">SCIENCE</span>
+        </button>
+        <button class="preset-btn preset-history" onclick="selectPreset('history')" data-preset="history">
+          <span class="preset-icon">📜</span>
+          <span class="preset-label">HISTORY</span>
+        </button>
+        <button class="preset-btn preset-tech" onclick="selectPreset('tech')" data-preset="tech">
+          <span class="preset-icon">💻</span>
+          <span class="preset-label">TECHNOLOGY</span>
+        </button>
+        <button class="preset-btn preset-pop" onclick="selectPreset('pop')" data-preset="pop">
+          <span class="preset-icon">🎬</span>
+          <span class="preset-label">POP CULTURE</span>
+        </button>
+        <button class="preset-btn preset-sports" onclick="selectPreset('sports')" data-preset="sports">
+          <span class="preset-icon">⚽</span>
+          <span class="preset-label">SPORTS</span>
+        </button>
+        <button class="preset-btn preset-arts" onclick="selectPreset('arts')" data-preset="arts">
+          <span class="preset-icon">🎨</span>
+          <span class="preset-label">ARTS & LIT</span>
+        </button>
+        <button class="preset-btn preset-space" onclick="selectPreset('space')" data-preset="space">
+          <span class="preset-icon">🚀</span>
+          <span class="preset-label">SPACE</span>
+        </button>
+        <button class="preset-btn preset-custom" onclick="openImportModal()" data-preset="custom">
+          <span class="preset-icon">📁</span>
+          <span class="preset-label">IMPORT CSV</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="timer-select">
+      <label>TIMER:</label>
+      <div class="timer-options">
+        <button class="timer-opt" data-time="5" onclick="selectTimer(5)">5s</button>
+        <button class="timer-opt" data-time="10" onclick="selectTimer(10)">10s</button>
+        <button class="timer-opt selected" data-time="15" onclick="selectTimer(15)">15s</button>
+        <button class="timer-opt" data-time="20" onclick="selectTimer(20)">20s</button>
+        <button class="timer-opt" data-time="30" onclick="selectTimer(30)">30s</button>
+        <button class="timer-opt" data-time="0" onclick="selectTimer(0)">OFF</button>
+      </div>
+    </div>
+
+    <div class="menu-buttons">
+      <button class="menu-btn play-btn" onclick="startGame()">
+        <span class="btn-icon">🎮</span> START GAME
+      </button>
+      <button class="menu-btn online-btn" onclick="openOnlineModal()">
+        <span class="btn-icon">🌐</span> PLAY ONLINE
+      </button>
+    </div>
+
+    <div class="instructions">
+      <h3>HOW TO PLAY</h3>
+      <p id="instructions-text">
+        Two players take turns picking questions from the board.<br>
+        The active player types their answer and hits <span class="key">Enter</span> or clicks Submit.<br>
+        The robot judge checks your answer — set your timer above!<br>
+        Correct = earn the money. Wrong = lose it and turn passes.
+      </p>
+    </div>
+  </div>
+
+  <!-- ONLINE LOBBY -->
+  <div id="online-lobby" class="screen">
+    <div class="lobby-container">
+      <h2 class="lobby-title">ONLINE LOBBY</h2>
+
+      <!-- Host view: room code + player list -->
+      <div id="lobby-host-view" class="lobby-section hidden">
+        <div class="room-code-box">
+          <div class="room-code-label">ROOM CODE</div>
+          <div class="room-code-value" id="room-code-display">---</div>
+          <button class="copy-btn" onclick="copyRoomCode()">COPY</button>
+        </div>
+        <div class="lobby-players" id="lobby-players-host">
+          <div class="lobby-players-label">PLAYERS</div>
+          <div id="lobby-player-list-host"></div>
+        </div>
+        <div class="lobby-status" id="lobby-status-host">Waiting for players to join...</div>
+        <button class="menu-btn play-btn" id="start-online-btn" onclick="startOnlineGame()" disabled>
+          <span class="btn-icon">🎮</span> START GAME
+        </button>
+        <button class="lobby-leave-btn" onclick="leaveLobby()">LEAVE</button>
+      </div>
+
+      <!-- Client view: connected status + player list -->
+      <div id="lobby-client-view" class="lobby-section hidden">
+        <div class="lobby-connected">
+          <span class="lobby-connected-dot"></span>
+          Connected to room
+        </div>
+        <div class="lobby-players">
+          <div class="lobby-players-label">PLAYERS</div>
+          <div id="lobby-player-list-client"></div>
+        </div>
+        <div class="lobby-status" id="lobby-status-client">Waiting for host to start the game...</div>
+        <button class="lobby-leave-btn" onclick="leaveLobby()">LEAVE</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- GAME -->
+  <div id="game" class="screen">
+    <div class="game-header">
+      <div id="scores-container" class="scores-container">
+        <!-- Populated by JS -->
+      </div>
+      <div class="round-display">
+        <div class="round-label">ROUND</div>
+        <div class="round-number" id="round-number">1</div>
+      </div>
+    </div>
+
+    <div id="category-row" class="category-row"></div>
+    <div id="board" class="board"></div>
+
+    <div id="turn-indicator" class="turn-indicator">
+      <span id="turn-text">Your turn to pick!</span>
+    </div>
+  </div>
+
+  <!-- QUESTION MODAL -->
+  <div id="question-modal" class="modal">
+    <div class="modal-content">
+      <div class="question-category" id="modal-category"></div>
+      <div class="question-value" id="modal-value"></div>
+      <div class="question-text" id="modal-question"></div>
+
+      <div class="timer-section" id="timer-section">
+        <div class="timer-bar-bg"><div class="timer-bar" id="timer-bar"></div></div>
+        <span id="timer-text">15s</span>
+      </div>
+
+      <div id="answer-section" class="answer-section">
+        <div id="answering-as" class="answering-as hidden"></div>
+        <input type="text" id="answer-input" placeholder="Type your answer..." class="answer-input">
+        <button class="submit-btn" onclick="submitAnswer()">SUBMIT</button>
+      </div>
+
+      <div id="result-section" class="result-section hidden">
+        <div id="result-icon" class="result-icon"></div>
+        <div id="result-text" class="result-text"></div>
+        <div id="correct-answer" class="correct-answer"></div>
+        <button class="continue-btn" onclick="closeModal()">CONTINUE</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- GAME OVER -->
+  <div id="gameover" class="screen">
+    <div class="gameover-container">
+      <div class="trophy">🏆</div>
+      <h1 class="gameover-title">GAME OVER!</h1>
+      <div id="winner-display" class="winner-display"></div>
+      <div id="final-scores" class="final-scores"></div>
+      <button class="play-again-btn" onclick="playAgain()">
+        <span class="btn-icon">🔄</span> PLAY AGAIN
+      </button>
+    </div>
+  </div>
+
+  <!-- ONLINE MODAL -->
+  <div id="online-modal" class="modal">
+    <div class="modal-content online-modal-content">
+      <h2 class="online-modal-title">PLAY ONLINE</h2>
+      <p class="online-modal-subtitle">Host a room for friends or join an existing room</p>
+
+      <div id="online-options" class="online-options">
+        <button class="online-option-btn" onclick="showCreateRoom()">
+          <span class="online-option-icon">🏠</span>
+          <span class="online-option-label">HOST A ROOM</span>
+          <span class="online-option-desc">Create a room and share the code</span>
+        </button>
+        <button class="online-option-btn" onclick="showJoinRoom()">
+          <span class="online-option-icon">🚪</span>
+          <span class="online-option-label">JOIN A ROOM</span>
+          <span class="online-option-desc">Enter a room code to join</span>
+        </button>
+      </div>
+
+      <div id="create-room-form" class="online-form hidden">
+        <div class="online-form-info">
+          Configure your game on the landing screen, then click Create Room.
+        </div>
+        <button class="menu-btn play-btn" onclick="createRoom()">
+          <span class="btn-icon">🏠</span> CREATE ROOM
+        </button>
+        <button class="online-form-back" onclick="backToOnlineOptions()">BACK</button>
+      </div>
+
+      <div id="join-room-form" class="online-form hidden">
+        <input type="text" id="join-name-input" class="online-input" placeholder="Your Name" maxlength="15">
+        <input type="text" id="join-room-input" class="online-input" placeholder="Room Code (e.g. JEOPARDY-1234)" maxlength="20">
+        <div id="join-error" class="online-error hidden"></div>
+        <button class="menu-btn play-btn" onclick="joinRoom()">
+          <span class="btn-icon">🚪</span> JOIN
+        </button>
+        <button class="online-form-back" onclick="backToOnlineOptions()">BACK</button>
+      </div>
+
+      <button class="online-modal-close" onclick="closeOnlineModal()">CANCEL</button>
+    </div>
+  </div>
+
+  <!-- IMPORT MODAL -->
+  <div id="import-modal" class="modal">
+    <div class="modal-content import-modal-content">
+      <h2 class="import-title">IMPORT CUSTOM QUESTIONS</h2>
+      <p class="import-subtitle">Drag & drop a CSV file or click to browse</p>
+
+      <div id="drop-zone" class="drop-zone" onclick="document.getElementById('csv-file-input').click()">
+        <div class="drop-zone-icon">📄</div>
+        <div class="drop-zone-text">Drop your CSV here</div>
+        <div class="drop-zone-hint">or click to choose a file</div>
+        <input type="file" id="csv-file-input" accept=".csv" class="hidden" onchange="handleFileSelect(event)">
+      </div>
+
+      <div id="import-preview" class="import-preview hidden">
+        <div class="preview-header">
+          <span id="preview-title"></span>
+          <span id="preview-count"></span>
+        </div>
+        <div id="preview-categories" class="preview-categories"></div>
+      </div>
+
+      <div id="import-error" class="import-error hidden"></div>
+
+      <div class="import-actions">
+        <button class="import-btn import-btn-secondary" onclick="downloadTemplate()">
+          <span>📥</span> Download Template
+        </button>
+        <button class="import-btn import-btn-primary" id="confirm-import-btn" onclick="confirmImport()" disabled>
+          USE THESE QUESTIONS
+        </button>
+        <button class="import-btn import-btn-close" onclick="closeImportModal()">CANCEL</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="questions.js"></script>
+  <script src="game.js"></script>
+  <script src="online.js"></script>
+</body>
+</html>
