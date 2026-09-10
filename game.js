@@ -608,6 +608,11 @@ function closeModal() {
     return;
   }
 
+  // Online client: just close modal, host handles turn cycling
+  if (typeof onlineState !== 'undefined' && onlineState.isOnline && !onlineState.isHost) {
+    return;
+  }
+
   // Cycle to next competitor
   state.currentCompetitor = (state.currentCompetitor + 1) % state.competitors.length;
 
